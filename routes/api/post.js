@@ -32,9 +32,10 @@ router.get(
   "/allPosts",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Post.find({}, (err, posts) => {
-      res.send(posts);
-    });
+    Post.find({})
+      .sort({ date: -1 })
+      .then((posts) => res.json(posts))
+      .catch((err) => console.log(err));
   }
 );
 
@@ -46,19 +47,9 @@ router.post(
     const author = req.body.author;
     const content = req.body.content;
 
-    Post.findByIdAndUpdate(
-      id,
-      { content: content },
-      { new: true },
-      (err, docs) => {
-        if (err) {
-          console.log(err);
-          res.status(400).send("Bad request");
-        } else {
-          res.json(docs);
-        }
-      }
-    );
+    Post.findByIdAndUpdate(id, { content: content }, { new: true })
+      .then((post) => res.json(post))
+      .catch((err) => console.log(err));
   }
 );
 
@@ -68,15 +59,9 @@ router.post(
   (req, res) => {
     const id = req.body.id;
     const author = req.body.author;
-
-    Post.findByIdAndDelete(id, (err, docs) => {
-      if (err) {
-        console.log(err);
-        res.status(400).send("Bad request");
-      } else {
-        res.send("Deleted");
-      }
-    });
+    Post.findByIdAndDelete(id)
+      .then(() => res.json({ success: true }))
+      .catch((err) => console.log(err));
   }
 );
 
